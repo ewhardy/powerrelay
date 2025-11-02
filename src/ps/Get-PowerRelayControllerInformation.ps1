@@ -1,4 +1,20 @@
 function Get-PowerRelayControllerInformation {
+       <#
+        .SYNOPSIS
+        Returns all controller configuration via RestApi
+
+        .DESCRIPTION
+        Calls the top-level restapi to get all state information.
+        This can take a while depending on network connection
+
+        .PARAMETER powerRelayIp
+        IPV4 of the powerRelay endpoing
+
+        .PARAMETER SecretsFilePath
+        Path to secrets file with login information
+        Default: environment variable: PowerRelaySecretPath
+        file is expected to be in form: username:password
+        #>
         param(
         [ValidateScript({
                 $outIp = $null
