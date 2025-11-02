@@ -13,7 +13,8 @@ function Get-PowerRelayControllerInformation {
         .PARAMETER SecretsFilePath
         Path to secrets file with login information
         Default: environment variable: PowerRelaySecretPath
-        file is expected to be in form: username:password
+        file content is expected to be: username:password
+        Only first line of file is read, all other content is ignored
         #>
         param(
         [ValidateScript({
@@ -26,35 +27,17 @@ function Get-PowerRelayControllerInformation {
 )
         $secretsfile = $SecretsFilePath
 
-        $rawlogin = Get-Content -Path $secretsfile
+        $rawlogin = Get-Content -TotalCount 1 -Path $secretsfile
 
         $webLogin = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($rawlogin))
 
-        $GetRelayInfoUri = "http://$($powerRelayIp)/restapi/relay/model/"
+        $GetRelayInfoUri = "http://$($powerRelayIp)/restapi/"
 
 
         $RelayInfoResponse = Invoke-RestMethod  `
+                -Method Get `
                 -Headers @{Authorization = "Basic $webLogin" } `
-                -Uri $GetRelayInfoUri `
+                -Uri $GetRelayInfoUri
 
-        Write-Output "Model: $($RelayInfoResponse)"
-
-        $GetStateUri = "http://$($powerRelayIp)/restapi/relay/outlets/$($OutletNumber)/state/"
-
-
-
-        $stateReponse = Invoke-RestMethod  `
-                -Headers @{Authorization = "Basic $webLogin" } `
-                -Uri $GetStateUri `
-                -ContentType "application/json"
-
-        Write-Host "Relay State: $($stateReponse)"
-
-        $output = [PSCustomObject]@{
-                PowerRelayModel = $RelayInfoResponse
-                OutletNumber    = $OutletNumber
-                CurrentState    = $stateReponse
-        }
-        $output
-
+        $RelayInfoResponse
 }
