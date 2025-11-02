@@ -1,10 +1,13 @@
 function Get-PowerRelayControllerInformation {
         param(
-                [String]$OutletNumber = "7",
-                [String]$powerRelayIp = "192.168.112.150",
+        [ValidateScript({
+                $outIp = $null
+                [System.Net.Ipaddress]::TryParse($_,[ref]$outIp)
+        })]
+        [String]$powerRelayIp = "192.168.112.150",
+        [ValidateScript({Test-path -Path $_})]
         [string]$SecretsFilePath = $env:PowerRelaySecretPath
 )
-
         $secretsfile = $SecretsFilePath
 
         $rawlogin = Get-Content -Path $secretsfile
